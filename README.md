@@ -27,3 +27,11 @@ npm run dev
 ```bash
 npm run build
 ```
+
+## Testing
+
+Para ver instrucciones detalladas sobre cómo ejecutar y escribir pruebas, consulta la [Guía de Testing](./TESTING.md).
+
+```bash
+npm test
+```

@@ -3,6 +3,7 @@ import CatalogoPage from './pages/catalogo/CatalogoPage'
 import ProductDetailPage from './pages/catalogo/ProductDetailPage'
 import HomePage from './pages/HomePage'
 import ContactoPage from './pages/ContactoPage'
+import NotFoundPage from './pages/NotFoundPage'
 import ScrollToTop from './components/ScrollToTop'
 
 export default function App() {
@@ -17,6 +18,9 @@ export default function App() {
         <Route path="/catalogo" element={<CatalogoPage />} />
         <Route path="/producto/:id" element={<ProductDetailPage />} />
         <Route path="/contacto" element={<ContactoPage />} />
+
+        {/* 404 - Not Found */}
+        <Route path="*" element={<NotFoundPage />} />
     </Routes>
     </>
   )
