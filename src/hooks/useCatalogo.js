@@ -31,7 +31,16 @@ export function useCatalogo(filtrosIniciales = {}) {
   // Carga categorías una sola vez al montar
   useEffect(() => {
     api.get('/catalog/categories')
-      .then(r => setCategorias(r.data))
+      .then(r => {
+        // Robustez: la API puede devolver el array directo o envuelto en un objeto
+        if (Array.isArray(r.data)) {
+          setCategorias(r.data)
+        } else if (r.data && Array.isArray(r.data.categories)) {
+          setCategorias(r.data.categories)
+        } else {
+          setCategorias([])
+        }
+      })
       .catch(() => setCategorias([]))
   }, [])
 

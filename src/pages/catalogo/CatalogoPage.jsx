@@ -85,7 +85,7 @@ function Sidebar({ categorias, filtros, actualizarFiltro, limpiarFiltros, mobile
               </button>
             </li>
 
-            {categorias.map(cat => (
+            {Array.isArray(categorias) && categorias.map(cat => (
               <li key={cat.id}>
                 <button
                   onClick={() => actualizarFiltro('categoria_id', cat.id)}
@@ -100,7 +100,7 @@ function Sidebar({ categorias, filtros, actualizarFiltro, limpiarFiltros, mobile
               </li>
             ))}
 
-            {categorias.length === 0 && (
+            {(!Array.isArray(categorias) || categorias.length === 0) && (
               <li className="text-sm text-gray-400 px-3 py-2 font-body italic">
                 Sin categorías
               </li>
@@ -301,7 +301,7 @@ function ProductosGrid({ productos, loading, error, onAgregar }) {
     )
   }
 
-  if (productos.length === 0) {
+  if (!Array.isArray(productos) || productos.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
         <div className="w-16 h-16 bg-surface-200 rounded-2xl flex items-center justify-center mb-4">
@@ -317,7 +317,7 @@ function ProductosGrid({ productos, loading, error, onAgregar }) {
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-      {productos.map(p => (
+      {Array.isArray(productos) && productos.map(p => (
         <ProductoCard key={p.id} producto={p} onAgregar={onAgregar} />
       ))}
     </div>
@@ -521,7 +521,7 @@ export default function CatalogoPage() {
           {/* Contenido principal */}
           <div className="flex-1 min-w-0">
             {/* Contador de resultados */}
-            {!loading && !error && (
+            {!loading && !error && Array.isArray(productos) && (
               <p className="text-sm font-body text-gray-400 mb-4">
                 {productos.length > 0
                   ? `Mostrando ${productos.length} productos`
