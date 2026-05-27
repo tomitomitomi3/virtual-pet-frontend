@@ -14,6 +14,10 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ShoppingCart, PawPrint, Truck, Shield, Heart, Phone, Mail, Instagram, MapPin, ArrowRight, Star } from 'lucide-react'
 import useCartStore from '../store/cartStore'
+import useAuthStore from '../store/authStore'
+import Navbar from '../components/Navbar'
+import AuthModal from '../components/auth/AuthModal'
+import CartDrawer from '../components/cart/CartDrawer'
 
 // ─── Banner superior animado ──────────────────────────────────────────────────
 
@@ -29,65 +33,6 @@ function TopBanner() {
         ))}
       </div>
     </div>
-  )
-}
-
-// ─── Navbar ───────────────────────────────────────────────────────────────────
-
-function Navbar({ cantidadItems }) {
-  const [scrolled, setScrolled] = useState(false)
-
-  useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 40)
-    window.addEventListener('scroll', handler)
-    return () => window.removeEventListener('scroll', handler)
-  }, [])
-
-  return (
-    <header className={`sticky top-0 z-40 transition-all duration-300 ${scrolled ? 'bg-white shadow-md' : 'bg-white/90 backdrop-blur-sm'} border-b border-surface-200`}>
-      <div className="max-w-screen-xl mx-auto px-6 h-16 flex items-center justify-between">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-9 h-9 bg-brand-500 rounded-xl flex items-center justify-center">
-            <PawPrint size={18} className="text-white" />
-          </div>
-          <span className="font-display text-xl font-bold text-gray-900">
-            Virtual<span className="text-brand-500">Pet</span>
-          </span>
-        </Link>
-
-        {/* Nav links */}
-        <nav className="hidden md:flex items-center gap-8">
-          {[
-            { label: 'Inicio',    to: '/' },
-            { label: 'Tienda',    to: '/catalogo' },
-            { label: 'Contacto',  to: '/contacto' },
-          ].map(link => (
-            <Link
-              key={link.to}
-              to={link.to}
-              className="text-sm font-body text-gray-600 hover:text-brand-500 transition-colors"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-
-        {/* Carrito */}
-        <Link
-          to="/catalogo"
-          className="relative flex items-center gap-2 bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-xl transition-colors font-body font-medium text-sm"
-        >
-          <ShoppingCart size={16} />
-          <span className="hidden sm:inline">Tienda</span>
-          {cantidadItems > 0 && (
-            <span className="absolute -top-2 -right-2 bg-gray-900 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-mono">
-              {cantidadItems}
-            </span>
-          )}
-        </Link>
-      </div>
-    </header>
   )
 }
 
@@ -351,12 +296,29 @@ function Footer() {
 // ─── Página completa ──────────────────────────────────────────────────────────
 
 export default function InicioPage() {
-  const { cantidadItems } = useCartStore()
+  const { cantidadItems, vaciar: vaciarCarrito } = useCartStore()
+  const { logout } = useAuthStore()
+
+  const [cartOpen, setCartOpen] = useState(false)
+  const [loginOpen, setLoginOpen] = useState(false)
+
+  const handleLogout = () => {
+    logout()
+    vaciarCarrito()
+  }
 
   return (
     <div className="min-h-screen bg-surface-50">
       <TopBanner />
-      <Navbar cantidadItems={cantidadItems()} />
+      <Navbar 
+        cantidadItems={cantidadItems()} 
+        onCartClick={() => setCartOpen(true)}
+        onLoginClick={() => setLoginOpen(true)}
+        onLogout={handleLogout}
+      />
+      <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
+      <AuthModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
+
       <Hero />
       <Categorias />
       <Beneficios />

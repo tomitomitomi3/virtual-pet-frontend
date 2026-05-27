@@ -56,6 +56,42 @@ const useAuthStore = create((set) => ({
     }
   },
 
+  updateProfile: async (nombre, apellido) => {
+    set({ loading: true, error: null })
+    try {
+      const response = await api.patch('/auth/me', { nombre, apellido })
+      const updatedUser = response.data
+      
+      localStorage.setItem('vp_user', JSON.stringify(updatedUser))
+      set({ user: updatedUser, loading: false })
+      return true
+    } catch (err) {
+      set({ 
+        error: err.response?.data?.detail || 'Error al actualizar perfil', 
+        loading: false 
+      })
+      return false
+    }
+  },
+
+  changePassword: async (currentPassword, newPassword) => {
+    set({ loading: true, error: null })
+    try {
+      await api.patch('/auth/me/password', { 
+        current_password: currentPassword, 
+        new_password: newPassword 
+      })
+      set({ loading: false })
+      return true
+    } catch (err) {
+      set({ 
+        error: err.response?.data?.detail || 'Error al cambiar contraseña', 
+        loading: false 
+      })
+      return false
+    }
+  },
+
   logout: () => {
     localStorage.removeItem('vp_token')
     localStorage.removeItem('vp_user')
