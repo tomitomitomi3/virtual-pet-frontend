@@ -6,6 +6,7 @@ import api from '../services/api';
 vi.mock('../services/api', () => ({
   default: {
     post: vi.fn(),
+    patch: vi.fn(),
   },
 }));
 
@@ -75,5 +76,28 @@ describe('authStore', () => {
     expect(success).toBe(true);
     expect(useAuthStore.getState().token).toBe('new-token');
     expect(localStorage.getItem('vp_token')).toBe('new-token');
+  });
+
+  it('debe actualizar el perfil correctamente', async () => {
+    const updatedUser = { id: 1, email: 'test@test.com', nombre: 'Updated', apellido: 'Name' };
+    api.patch.mockResolvedValue({ data: updatedUser });
+
+    const success = await useAuthStore.getState().updateProfile('Updated', 'Name');
+
+    expect(success).toBe(true);
+    expect(useAuthStore.getState().user).toEqual(updatedUser);
+    expect(JSON.parse(localStorage.getItem('vp_user'))).toEqual(updatedUser);
+  });
+
+  it('debe cambiar la contraseña correctamente', async () => {
+    api.patch.mockResolvedValue({});
+
+    const success = await useAuthStore.getState().changePassword('oldPass', 'newPass123');
+
+    expect(success).toBe(true);
+    expect(api.patch).toHaveBeenCalledWith('/auth/me/password', {
+      current_password: 'oldPass',
+      new_password: 'newPass123'
+    });
   });
 });
