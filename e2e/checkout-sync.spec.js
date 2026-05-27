@@ -51,10 +51,17 @@ test('Flujo completo: Cliente compra y Operario recibe en tiempo real', async ({
 
   // Generar una dirección única y legible (usamos los últimos 4 dígitos del timestamp)
   const idUnico = Date.now().toString().slice(-4);
-  const direccionUnica = `Calle Playwright ${idUnico}, Mar del Plata`;
+  const calleUnica = `Calle Playwright`;
+  const ciudadUnica = `Mar del Plata`;
+  // La dirección completa concatenada será lo que buscaremos después
+  const direccionUnica = `${calleUnica} ${idUnico}, ${ciudadUnica}`;
 
-  // Llenar dirección (min 10 caracteres para que sea válida)
-  await clientePage.getByPlaceholder(/Calle Falsa/i).fill(direccionUnica);
+  // Llenar dirección dividida
+  await clientePage.getByPlaceholder(/Calle/i).fill(calleUnica);
+  await clientePage.getByPlaceholder(/N°/i).fill(idUnico);
+  await clientePage.getByPlaceholder(/Ciudad/i).fill(ciudadUnica);
+  await clientePage.getByPlaceholder(/Provincia/i).fill('Buenos Aires');
+  
   await clientePage.getByRole('button', { name: /Finalizar Compra/i }).click();
   
   // 5. Verificación Dual

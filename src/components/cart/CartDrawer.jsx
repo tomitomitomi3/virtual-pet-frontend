@@ -10,7 +10,22 @@ export default function CartDrawer({ isOpen, onClose }) {
   const [loading, setLoading] = useState(false)
   const [success, setSuccess] = useState(false)
   const [error, setError] = useState(null)
-  const [direccion, setDireccion] = useState('')
+  const [direccion, setDireccion] = useState({
+    calle: '',
+    numero: '',
+    piso_depto: '',
+    ciudad: '',
+    provincia: '',
+    cp: ''
+  })
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+    setDireccion(prev => ({
+      ...prev,
+      [name]: value
+    }))
+  }
 
   const handleCheckout = async () => {
     if (!isLoggedIn()) {
@@ -18,8 +33,9 @@ export default function CartDrawer({ isOpen, onClose }) {
       return
     }
 
-    if (direccion.length < 10) {
-      setError('Por favor, ingresá una dirección de entrega válida (mín. 10 caracteres).')
+    const { calle, numero, ciudad, provincia } = direccion
+    if (!calle || !numero || !ciudad || !provincia) {
+      setError('Por favor, completa los campos obligatorios (Calle, Número, Ciudad y Provincia).')
       return
     }
 
@@ -27,12 +43,14 @@ export default function CartDrawer({ isOpen, onClose }) {
     setError(null)
     
     try {
+      const direccionCompleta = `${calle} ${numero}${direccion.piso_depto ? ', ' + direccion.piso_depto : ''}, ${ciudad}, ${provincia}${direccion.cp ? ' (CP ' + direccion.cp + ')' : ''}`
+      
       const checkoutData = {
         items: items.map(item => ({
           product_id: item.product_id,
           cantidad: item.cantidad
         })),
-        direccion_entrega: direccion
+        direccion_entrega: direccionCompleta
       }
       
       await api.post('/cart/checkout', checkoutData)
@@ -159,20 +177,74 @@ export default function CartDrawer({ isOpen, onClose }) {
                 </div>
               )}
               
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between mb-4">
                 <span className="text-gray-500 font-body">Subtotal</span>
                 <span className="text-xl font-display font-bold text-gray-900">${total().toLocaleString('es-AR')}</span>
               </div>
 
-              <div className="mb-6">
-                <label className="block text-xs font-body font-semibold text-gray-400 uppercase mb-1.5 ml-1">Dirección de Entrega</label>
-                <input 
-                  type="text" 
-                  placeholder="Calle Falsa 123, Mar del Plata"
-                  className="w-full px-4 py-2 bg-white border border-surface-200 rounded-xl focus:outline-none focus:border-brand-500 transition-all text-sm font-body"
-                  value={direccion}
-                  onChange={e => setDireccion(e.target.value)}
-                />
+              <div className="mb-6 space-y-3">
+                <h4 className="text-xs font-body font-bold text-gray-400 uppercase tracking-wider ml-1">Dirección de Entrega</h4>
+                
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="col-span-2">
+                    <input 
+                      type="text" 
+                      name="calle"
+                      placeholder="Calle"
+                      className="w-full px-3 py-2 bg-white border border-surface-200 rounded-xl focus:outline-none focus:border-brand-500 transition-all text-sm font-body"
+                      value={direccion.calle}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div>
+                    <input 
+                      type="text" 
+                      name="numero"
+                      placeholder="N°"
+                      className="w-full px-3 py-2 bg-white border border-surface-200 rounded-xl focus:outline-none focus:border-brand-500 transition-all text-sm font-body"
+                      value={direccion.numero}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <input 
+                    type="text" 
+                    name="piso_depto"
+                    placeholder="Piso / Depto (Opcional)"
+                    className="w-full px-3 py-2 bg-white border border-surface-200 rounded-xl focus:outline-none focus:border-brand-500 transition-all text-sm font-body"
+                    value={direccion.piso_depto}
+                    onChange={handleInputChange}
+                  />
+                  <input 
+                    type="text" 
+                    name="cp"
+                    placeholder="Cód. Postal"
+                    className="w-full px-3 py-2 bg-white border border-surface-200 rounded-xl focus:outline-none focus:border-brand-500 transition-all text-sm font-body"
+                    value={direccion.cp}
+                    onChange={handleInputChange}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <input 
+                    type="text" 
+                    name="ciudad"
+                    placeholder="Ciudad"
+                    className="w-full px-3 py-2 bg-white border border-surface-200 rounded-xl focus:outline-none focus:border-brand-500 transition-all text-sm font-body"
+                    value={direccion.ciudad}
+                    onChange={handleInputChange}
+                  />
+                  <input 
+                    type="text" 
+                    name="provincia"
+                    placeholder="Provincia"
+                    className="w-full px-3 py-2 bg-white border border-surface-200 rounded-xl focus:outline-none focus:border-brand-500 transition-all text-sm font-body"
+                    value={direccion.provincia}
+                    onChange={handleInputChange}
+                  />
+                </div>
               </div>
               
               <button 
@@ -200,3 +272,4 @@ export default function CartDrawer({ isOpen, onClose }) {
     </div>
   )
 }
+
