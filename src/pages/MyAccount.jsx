@@ -63,19 +63,40 @@ export default function MyAccount() {
     }
   }, [activeTab])
 
-  const fetchOrders = async () => {
-    setLoadingOrders(true)
+  // Polling para actualización en tiempo real de pedidos
+  useEffect(() => {
+    let intervalId;
+
+    if (activeTab === 'orders') {
+      const poll = () => {
+        fetchOrders(true);
+        if (selectedOrder) {
+          fetchOrderDetails(selectedOrder.id, true);
+        }
+      };
+      
+      intervalId = setInterval(poll, 10000); // Actualizar cada 10 segundos
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [activeTab, selectedOrder?.id]);
+
+  const fetchOrders = async (silent = false) => {
+    if (!silent) setLoadingOrders(true)
     try {
       const response = await api.get('/orders')
       setOrders(response.data)
     } catch (err) {
       console.error('Error fetching orders:', err)
     } finally {
-      setLoadingOrders(false)
+      if (!silent) setLoadingOrders(false)
     }
   }
 
-  const fetchOrderDetails = async (orderId) => {
+  const fetchOrderDetails = async (orderId, silent = false) => {
+    // No usamos un loading state global para el detalle para evitar saltos en la UI durante el polling
     try {
       const response = await api.get(`/orders/${orderId}`)
       setSelectedOrder(response.data)
