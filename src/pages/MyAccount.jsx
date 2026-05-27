@@ -401,8 +401,12 @@ export default function MyAccount() {
                           <div className="bg-surface-50 rounded-2xl border border-surface-100 divide-y divide-surface-100 overflow-hidden">
                             {selectedOrder.items.map(item => (
                               <div key={item.product_id} className="flex items-center gap-4 p-4">
-                                <div className="w-12 h-12 bg-white rounded-xl border border-surface-200 flex items-center justify-center shrink-0">
-                                  <ShoppingBag size={20} className="text-surface-300" />
+                                <div className="w-12 h-12 bg-white rounded-xl border border-surface-200 flex items-center justify-center shrink-0 overflow-hidden">
+                                  {item.producto_imagen_url ? (
+                                    <img src={item.producto_imagen_url} alt={item.producto_nombre} className="w-full h-full object-cover" />
+                                  ) : (
+                                    <ShoppingBag size={20} className="text-surface-300" />
+                                  )}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <p className="text-sm font-bold text-gray-900 truncate">{item.producto_nombre || `Producto #${item.product_id}`}</p>

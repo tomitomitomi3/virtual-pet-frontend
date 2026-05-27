@@ -5,45 +5,24 @@ import { useProduct } from '../../hooks/useProduct'
 import useCartStore from '../../store/cartStore'
 import useAuthStore from '../../store/authStore'
 import Navbar from '../../components/Navbar'
+import AuthModal from '../../components/auth/AuthModal'
 import CartDrawer from '../../components/cart/CartDrawer'
 
 export default function ProductDetailPage() {
   const { id } = useParams()
   const { product, loading, error } = useProduct(id)
   const { agregar } = useCartStore()
-  const { login, register, logout, loading: authLoading, error: authError } = useAuthStore()
+  const { logout } = useAuthStore()
 
   const [cartOpen, setCartOpen] = useState(false)
   const [loginOpen, setLoginOpen] = useState(false)
-  const [isRegister, setIsRegister] = useState(false)
   const [agregado, setAgregado] = useState(false)
-  const [authData, setAuthData] = useState({ 
-    email: '', 
-    password: '',
-    nombre: '',
-    apellido: ''
-  })
 
   const handleAgregar = () => {
     if (!product || !product.stock || product.stock.cantidad === 0) return
     agregar(product)
     setAgregado(true)
     setTimeout(() => setAgregado(false), 2000)
-  }
-
-  const handleAuth = async (e) => {
-    e.preventDefault()
-    let success = false
-    if (isRegister) {
-      success = await register(authData.nombre, authData.apellido, authData.email, authData.password)
-    } else {
-      success = await login(authData.email, authData.password)
-    }
-    if (success) {
-      setLoginOpen(false)
-      setIsRegister(false)
-      setAuthData({ email: '', password: '', nombre: '', apellido: '' })
-    }
   }
 
   if (loading) {
@@ -90,31 +69,7 @@ export default function ProductDetailPage() {
     <div className="min-h-screen bg-surface-50">
       <Navbar onCartClick={() => setCartOpen(true)} onLoginClick={() => setLoginOpen(true)} onLogout={logout} />
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
-
-      {/* Auth Modal (mismo que en CatalogoPage) */}
-      {loginOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setLoginOpen(false)} />
-          <div className="relative bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl">
-            <h2 className="text-2xl font-display font-bold text-gray-900 mb-2">{isRegister ? 'Crear cuenta' : 'Bienvenido de nuevo'}</h2>
-            <form onSubmit={handleAuth} className="space-y-4 mt-6">
-              {isRegister && (
-                <div className="grid grid-cols-2 gap-4">
-                  <input type="text" required placeholder="Nombre" className="w-full px-4 py-3 bg-surface-50 border border-surface-200 rounded-xl focus:outline-none focus:border-brand-500 transition-all text-sm" value={authData.nombre} onChange={e => setAuthData({...authData, nombre: e.target.value})} />
-                  <input type="text" required placeholder="Apellido" className="w-full px-4 py-3 bg-surface-50 border border-surface-200 rounded-xl focus:outline-none focus:border-brand-500 transition-all text-sm" value={authData.apellido} onChange={e => setAuthData({...authData, apellido: e.target.value})} />
-                </div>
-              )}
-              <input type="email" required placeholder="Email" className="w-full px-4 py-3 bg-surface-50 border border-surface-200 rounded-xl focus:outline-none focus:border-brand-500 transition-all text-sm" value={authData.email} onChange={e => setAuthData({...authData, email: e.target.value})} />
-              <input type="password" required placeholder="Contraseña" className="w-full px-4 py-3 bg-surface-50 border border-surface-200 rounded-xl focus:outline-none focus:border-brand-500 transition-all text-sm" value={authData.password} onChange={e => setAuthData({...authData, password: e.target.value})} />
-              {authError && <p className="text-xs text-red-500 font-medium">{authError}</p>}
-              <button type="submit" disabled={authLoading} className="w-full bg-brand-500 hover:bg-brand-600 text-white py-3.5 rounded-2xl font-body font-bold text-base transition-all disabled:opacity-50">
-                {authLoading ? 'Procesando...' : (isRegister ? 'Registrarse' : 'Iniciar Sesión')}
-              </button>
-            </form>
-            <p className="text-center text-xs text-gray-400 mt-6">{isRegister ? '¿Ya tenés cuenta?' : '¿No tenés cuenta?'} <span className="text-brand-500 font-semibold cursor-pointer" onClick={() => setIsRegister(!isRegister)}>{isRegister ? 'Iniciá Sesión' : 'Registrate'}</span></p>
-          </div>
-        </div>
-      )}
+      <AuthModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
 
       <main className="max-w-screen-xl mx-auto px-4 md:px-6 py-8 md:py-12">
         {/* Breadcrumbs / Volver */}
