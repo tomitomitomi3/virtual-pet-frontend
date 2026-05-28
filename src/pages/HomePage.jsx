@@ -38,7 +38,30 @@ function TopBanner() {
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 
+// Cargamos dinámicamente todas las imágenes de la carpeta assets/hero
+const localImages = import.meta.glob('../assets/hero/*.{png,jpg,jpeg,webp,svg}', { eager: true, query: '?url', import: 'default' })
+const localImageUrls = Object.values(localImages)
+
+const FALLBACK_IMAGES = [
+  "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?q=80&w=1000&auto=format&fit=crop", // Perro feliz
+  "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=1000&auto=format&fit=crop", // Gato
+  "https://images.unsplash.com/photo-1544568100-847a948585b9?q=80&w=1000&auto=format&fit=crop", // Perro Golden
+  "https://images.unsplash.com/photo-1450778869180-41d0601e046e?q=80&w=1000&auto=format&fit=crop"  // Perro y gato
+]
+
+// Usamos las imágenes locales si existen, si no, usamos las de respaldo
+const HERO_IMAGES = localImageUrls.length > 0 ? localImageUrls : FALLBACK_IMAGES
+
 function Hero() {
+  const [currentImage, setCurrentImage] = useState(0)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImage((prev) => (prev + 1) % HERO_IMAGES.length)
+    }, 5000)
+    return () => clearInterval(timer)
+  }, [])
+
   return (
     <section className="relative bg-surface-50 overflow-hidden">
       {/* Fondo decorativo */}
@@ -78,18 +101,42 @@ function Hero() {
           </div>
         </div>
 
-        {/* Imagen placeholder */}
-        <div className="flex-1 flex justify-center">
+        {/* Slider de imágenes */}
+        <div className="flex-1 flex justify-center w-full">
           <div className="relative w-72 h-72 md:w-96 md:h-96">
-            <div className="w-full h-full bg-brand-100 rounded-[40px] flex items-center justify-center">
-              <PawPrint size={120} className="text-brand-300" />
+            <div className="w-full h-full bg-brand-100 rounded-[40px] overflow-hidden shadow-2xl relative">
+              {HERO_IMAGES.map((img, idx) => (
+                <img 
+                  key={idx}
+                  src={img} 
+                  alt={`Mascota ${idx + 1}`} 
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                    idx === currentImage ? 'opacity-100' : 'opacity-0'
+                  }`}
+                />
+              ))}
             </div>
+
+            {/* Controles del Slider */}
+            <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+              {HERO_IMAGES.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setCurrentImage(idx)}
+                  className={`w-2.5 h-2.5 rounded-full transition-all ${
+                    idx === currentImage ? 'bg-brand-500 w-6' : 'bg-brand-200 hover:bg-brand-300'
+                  }`}
+                  aria-label={`Ir a imagen ${idx + 1}`}
+                />
+              ))}
+            </div>
+
             {/* Badges flotantes */}
-            <div className="absolute -top-4 -right-4 bg-white shadow-lg rounded-2xl px-4 py-2 flex items-center gap-2">
+            <div className="absolute -top-4 -right-4 bg-white shadow-lg rounded-2xl px-4 py-2 flex items-center gap-2 z-10">
               <Truck size={16} className="text-brand-500" />
               <span className="text-xs font-body font-semibold text-gray-700">Envío a domicilio</span>
             </div>
-            <div className="absolute -bottom-4 -left-4 bg-white shadow-lg rounded-2xl px-4 py-2 flex items-center gap-2">
+            <div className="absolute -bottom-4 -left-4 bg-white shadow-lg rounded-2xl px-4 py-2 flex items-center gap-2 z-10">
               <Shield size={16} className="text-brand-500" />
               <span className="text-xs font-body font-semibold text-gray-700">Compra segura</span>
             </div>
@@ -171,8 +218,12 @@ function QuienesSomos() {
   return (
     <section className="max-w-screen-xl mx-auto px-6 py-20">
       <div className="bg-brand-50 rounded-4xl p-10 md:p-16 flex flex-col md:flex-row items-center gap-12">
-        <div className="w-48 h-48 md:w-64 md:h-64 bg-brand-100 rounded-[40px] flex items-center justify-center shrink-0">
-          <PawPrint size={80} className="text-brand-400" />
+        <div className="w-48 h-48 md:w-64 md:h-64 bg-brand-100 rounded-[40px] overflow-hidden shadow-xl shrink-0 -rotate-2 hover:rotate-0 transition-transform duration-500">
+          <img 
+            src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?q=80&w=1000&auto=format&fit=crop" 
+            alt="Gato curioso" 
+            className="w-full h-full object-cover"
+          />
         </div>
         <div>
           <span className="inline-block bg-brand-200 text-brand-800 text-xs font-body font-semibold px-3 py-1 rounded-full mb-4 tracking-wide uppercase">

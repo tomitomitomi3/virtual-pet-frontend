@@ -34,22 +34,19 @@ export default function UserManagement() {
   const [addError, setAddError] = useState(null)
 
   useEffect(() => {
-    // Basic protection: if no user or not admin, redirect
-    // We assume user.is_admin or similar exists. For now we check user.email as a fallback if needed
-    // but better to check a role.
-    if (!user) {
-      navigate('/')
+    if (!user || user.role !== 'admin') {
+      navigate('/mi-cuenta')
       return
     }
-    
-    // If we don't have is_admin property yet, we might want to check it from the API or just try to fetch users
     fetchUsers()
   }, [user, navigate])
 
   const fetchUsers = async () => {
     setLoading(true)
     setError(null)
+    console.log('Fetching users from: /auth/users')
     try {
+      // Intentamos con /auth/users basándonos en la estructura común de la API
       const response = await api.get('/auth/users')
       setUsers(response.data)
     } catch (err) {
@@ -77,10 +74,15 @@ export default function UserManagement() {
     setAddLoading(true)
     setAddError(null)
     try {
-      // We can use the register endpoint or a specific admin one if it exists
-      // Assuming /auth/register is the one, or maybe /users
+      // El registro de nuevos usuarios suele estar en /auth/register
       const response = await api.post('/auth/register', newUserData)
-      setUsers([...users, response.data.user])
+      // Si el backend devuelve el usuario creado, lo agregamos a la lista
+      // Si no, recargamos la lista
+      if (response.data && (response.data.user || response.data.id)) {
+        setUsers([...users, response.data.user || response.data])
+      } else {
+        await fetchUsers()
+      }
       setIsAddModalOpen(false)
       setNewUserData({ nombre: '', apellido: '', email: '', password: '' })
     } catch (err) {
@@ -91,9 +93,9 @@ export default function UserManagement() {
   }
 
   const filteredUsers = users.filter(u => 
-    u.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.email.toLowerCase().includes(searchTerm.toLowerCase())
+    (u.nombre || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (u.apellido || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (u.email || '').toLowerCase().includes(searchTerm.toLowerCase())
   )
 
   if (loading) {
@@ -114,10 +116,10 @@ export default function UserManagement() {
         <h3 className="text-xl font-display font-bold text-gray-900 mb-2">Acceso Denegado</h3>
         <p className="text-gray-500 max-w-xs mb-8">{error}</p>
         <button 
-          onClick={() => navigate('/mi-cuenta')}
+          onClick={() => fetchUsers()}
           className="bg-brand-500 hover:bg-brand-600 text-white px-8 py-3 rounded-2xl font-bold transition-all active:scale-95"
         >
-          Volver a mi cuenta
+          Reintentar
         </button>
       </div>
     )
@@ -169,16 +171,18 @@ export default function UserManagement() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-brand-50 rounded-xl flex items-center justify-center text-brand-600 font-bold">
-                          {u.nombre[0]}{u.apellido[0]}
+                          {(u.nombre || '?')[0]}{(u.apellido || '')[0]}
                         </div>
                         <div>
                           <p className="text-sm font-bold text-gray-900">{u.nombre} {u.apellido}</p>
-                          {u.role === 'admin' && (
-                            <span className="text-[10px] bg-brand-500 text-white px-1.5 py-0.5 rounded font-bold uppercase">Admin</span>
-                          )}
-                          {u.role === 'cliente' && (
-                            <span className="text-[10px] bg-blue-500 text-white px-1.5 py-0.5 rounded font-bold uppercase ml-1">Cliente</span>
-                          )}
+                          <div className="flex gap-1 mt-1">
+                            {u.role === 'admin' && (
+                              <span className="text-[10px] bg-brand-500 text-white px-1.5 py-0.5 rounded font-bold uppercase">Admin</span>
+                            )}
+                            {u.role === 'cliente' && (
+                              <span className="text-[10px] bg-blue-500 text-white px-1.5 py-0.5 rounded font-bold uppercase">Cliente</span>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </td>
