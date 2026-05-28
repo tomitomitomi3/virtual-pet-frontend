@@ -173,7 +173,7 @@ export default function UserManagement() {
                         </div>
                         <div>
                           <p className="text-sm font-bold text-gray-900">{u.nombre} {u.apellido}</p>
-                          {u.is_admin && (
+                          {u.role === 'admin' && (
                             <span className="text-[10px] bg-brand-500 text-white px-1.5 py-0.5 rounded font-bold uppercase">Admin</span>
                           )}
                         </div>

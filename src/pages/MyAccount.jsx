@@ -166,7 +166,7 @@ export default function MyAccount() {
                 {[
                   { id: 'profile', label: 'Mi Perfil', icon: UserIcon },
                   { id: 'orders', label: 'Mis Pedidos', icon: ShoppingBag },
-                  ...(user.is_admin ? [{ id: 'users', label: 'Gestión de Usuarios', icon: Users }] : []),
+                  ...(user.role === 'admin' ? [{ id: 'users', label: 'Gestión de Usuarios', icon: Users }] : []),
                   { id: 'security', label: 'Seguridad', icon: Lock },
                 ].map(item => (
                   <button
@@ -315,7 +315,7 @@ export default function MyAccount() {
               )}
 
               {/* Tab: Users (Admin Only) */}
-              {activeTab === 'users' && user.is_admin && (
+              {activeTab === 'users' && user.role === 'admin' && (
                 <UserManagement />
               )}
 

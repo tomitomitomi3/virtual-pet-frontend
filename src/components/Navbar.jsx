@@ -41,7 +41,7 @@ export default function Navbar({ onCartClick, onLoginClick, onLogout }) {
                 </div>
                 <div className="flex flex-col items-start leading-none hidden sm:flex">
                   <span className="text-sm font-body font-medium text-gray-700">{user?.nombre}</span>
-                  {user?.is_admin && <span className="text-[9px] font-bold text-brand-600 uppercase mt-0.5">Admin</span>}
+                  {user?.role === 'admin' && <span className="text-[9px] font-bold text-brand-600 uppercase mt-0.5">Admin</span>}
                 </div>
               </button>
               

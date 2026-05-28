@@ -11,9 +11,14 @@ const useAuthStore = create((set) => ({
     set({ loading: true, error: null })
     try {
       const response = await api.post('/auth/login', { email, password })
-      const { access_token, user } = response.data
+      const { access_token } = response.data
       
       localStorage.setItem('vp_token', access_token)
+      
+      // Obtener el perfil completo para tener el campo 'role'
+      const userResponse = await api.get('/auth/me')
+      const user = userResponse.data
+      
       localStorage.setItem('vp_user', JSON.stringify(user))
       
       set({ token: access_token, user, loading: false })
