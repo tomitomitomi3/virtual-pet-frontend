@@ -11,13 +11,15 @@ import {
   CheckCircle2,
   Truck,
   AlertCircle,
-  Eye
+  Eye,
+  Users
 } from 'lucide-react'
 import useAuthStore from '../store/authStore'
 import useCartStore from '../store/cartStore'
 import Navbar from '../components/Navbar'
 import CartDrawer from '../components/cart/CartDrawer'
 import api from '../services/api'
+import UserManagement from './UserManagement'
 
 const ESTADOS_ORDEN = {
   pendiente: { label: 'Pendiente', color: 'text-yellow-600 bg-yellow-50', icon: Clock },
@@ -164,6 +166,7 @@ export default function MyAccount() {
                 {[
                   { id: 'profile', label: 'Mi Perfil', icon: UserIcon },
                   { id: 'orders', label: 'Mis Pedidos', icon: ShoppingBag },
+                  ...(user.is_admin ? [{ id: 'users', label: 'Gestión de Usuarios', icon: Users }] : []),
                   { id: 'security', label: 'Seguridad', icon: Lock },
                 ].map(item => (
                   <button
@@ -309,6 +312,11 @@ export default function MyAccount() {
                     </button>
                   </form>
                 </div>
+              )}
+
+              {/* Tab: Users (Admin Only) */}
+              {activeTab === 'users' && user.is_admin && (
+                <UserManagement />
               )}
 
               {/* Tab: Orders */}

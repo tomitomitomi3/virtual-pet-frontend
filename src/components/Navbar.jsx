@@ -36,10 +36,13 @@ export default function Navbar({ onCartClick, onLoginClick, onLogout }) {
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="flex items-center gap-2 p-1 pr-3 hover:bg-surface-100 rounded-xl transition-colors"
               >
-                <div className="w-8 h-8 bg-surface-200 rounded-lg flex items-center justify-center text-gray-600">
+                <div className="w-8 h-8 bg-surface-200 rounded-lg flex items-center justify-center text-gray-600 shrink-0">
                   <UserIcon size={16} />
                 </div>
-                <span className="text-sm font-body font-medium text-gray-700 hidden sm:inline">{user?.nombre}</span>
+                <div className="flex flex-col items-start leading-none hidden sm:flex">
+                  <span className="text-sm font-body font-medium text-gray-700">{user?.nombre}</span>
+                  {user?.is_admin && <span className="text-[9px] font-bold text-brand-600 uppercase mt-0.5">Admin</span>}
+                </div>
               </button>
               
               {showUserMenu && (
