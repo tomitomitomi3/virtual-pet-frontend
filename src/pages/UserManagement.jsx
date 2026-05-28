@@ -50,7 +50,7 @@ export default function UserManagement() {
     setLoading(true)
     setError(null)
     try {
-      const response = await api.get('/users')
+      const response = await api.get('/auth/users')
       setUsers(response.data)
     } catch (err) {
       console.error('Error fetching users:', err)
@@ -64,7 +64,7 @@ export default function UserManagement() {
     if (!window.confirm('¿Estás seguro de que querés eliminar a este usuario?')) return
     
     try {
-      await api.delete(`/users/${userId}`)
+      await api.delete(`/auth/users/${userId}`)
       setUsers(users.filter(u => u.id !== userId))
     } catch (err) {
       console.error('Error deleting user:', err)
@@ -175,6 +175,9 @@ export default function UserManagement() {
                           <p className="text-sm font-bold text-gray-900">{u.nombre} {u.apellido}</p>
                           {u.role === 'admin' && (
                             <span className="text-[10px] bg-brand-500 text-white px-1.5 py-0.5 rounded font-bold uppercase">Admin</span>
+                          )}
+                          {u.role === 'cliente' && (
+                            <span className="text-[10px] bg-blue-500 text-white px-1.5 py-0.5 rounded font-bold uppercase ml-1">Cliente</span>
                           )}
                         </div>
                       </div>
