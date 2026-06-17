@@ -6,6 +6,7 @@ import MyAccount from './pages/MyAccount'
 import ContactoPage from './pages/ContactoPage'
 import NotFoundPage from './pages/NotFoundPage'
 import ScrollToTop from './components/ScrollToTop'
+import ChatBot from './components/chatbot/ChatBot'
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
         {/* 404 - Not Found */}
         <Route path="*" element={<NotFoundPage />} />
     </Routes>
+    <ChatBot />
     </>
   )
 }
