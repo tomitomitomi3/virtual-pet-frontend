@@ -18,6 +18,7 @@ import useAuthStore from '../store/authStore'
 import useCartStore from '../store/cartStore'
 import Navbar from '../components/Navbar'
 import CartDrawer from '../components/cart/CartDrawer'
+import AuthModal from '../components/auth/AuthModal'
 import api from '../services/api'
 import UserManagement from './UserManagement'
 
@@ -37,6 +38,7 @@ export default function MyAccount() {
   
   const [activeTab, setActiveTab] = useState('profile') // 'profile', 'orders', 'security'
   const [cartOpen, setCartOpen] = useState(false)
+  const [loginOpen, setLoginOpen] = useState(false)
   const [orders, setOrders] = useState([])
   const [loadingOrders, setLoadingOrders] = useState(false)
   const [selectedOrder, setSelectedOrder] = useState(null)
@@ -141,10 +143,12 @@ export default function MyAccount() {
       <Navbar 
         cantidadItems={cantidadItems()} 
         onCartClick={() => setCartOpen(true)}
+        onLoginClick={() => setLoginOpen(true)}
         onLogout={handleLogout}
       />
       
       <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
+      <AuthModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
 
       <main className="max-w-screen-xl mx-auto px-4 md:px-6 py-10">
         <div className="flex flex-col md:flex-row gap-8">
@@ -354,6 +358,11 @@ export default function MyAccount() {
                                     <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${config.color}`}>
                                       {config.label}
                                     </span>
+                                    {order.billing_cuit && (
+                                      <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-100 font-body">
+                                        Factura Solicitada
+                                      </span>
+                                    )}
                                   </div>
                                   <p className="text-xs text-gray-400 font-medium">
                                     {new Date(order.created_at).toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric' })}
@@ -477,6 +486,25 @@ export default function MyAccount() {
                               </p>
                             </div>
                           </div>
+
+                          {selectedOrder.billing_cuit && (
+                            <div className="space-y-4">
+                              <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider ml-1">Datos de Facturación</h4>
+                              <div className="bg-white rounded-2xl border border-surface-200 p-5 flex flex-col gap-2">
+                                <p className="text-sm text-gray-600">
+                                  <span className="font-semibold text-gray-700">Tipo:</span> Factura A
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                  <span className="font-semibold text-gray-700">CUIT:</span> {selectedOrder.billing_cuit}
+                                </p>
+                                {selectedOrder.billing_requested_at && (
+                                  <p className="text-xs text-gray-400">
+                                    Solicitada el {new Date(selectedOrder.billing_requested_at).toLocaleDateString('es-AR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>

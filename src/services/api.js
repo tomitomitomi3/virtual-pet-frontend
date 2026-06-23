@@ -18,7 +18,15 @@ api.interceptors.request.use(config => {
 api.interceptors.response.use(
   response => response,
   error => {
-    if (error.response?.status === 401) localStorage.removeItem('vp_token')
+    if (error.response?.status === 401) {
+      localStorage.removeItem('vp_token')
+      localStorage.removeItem('vp_user')
+      import('../store/authStore')
+        .then(m => {
+          m.default.getState().logout()
+        })
+        .catch(err => console.error('Failed to log out from authStore:', err))
+    }
     return Promise.reject(error)
   }
 )

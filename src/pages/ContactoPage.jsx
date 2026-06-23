@@ -7,47 +7,12 @@
 
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { PawPrint, Mail, Phone, Instagram, MapPin, Clock, Send, CheckCircle, ShoppingCart } from 'lucide-react'
+import { Mail, Phone, Instagram, MapPin, Clock, Send, CheckCircle, ShoppingCart } from 'lucide-react'
 import useCartStore from '../store/cartStore'
-
-function Navbar({ cantidadItems }) {
-  return (
-    <header className="sticky top-0 z-40 bg-white border-b border-surface-200 shadow-sm">
-      <div className="max-w-screen-xl mx-auto px-6 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-brand-500 rounded-xl flex items-center justify-center">
-            <PawPrint size={16} className="text-white" />
-          </div>
-          <span className="font-display text-xl font-bold text-gray-900">
-            Virtual<span className="text-brand-500">Pet</span>
-          </span>
-        </Link>
-
-        <nav className="hidden md:flex items-center gap-8">
-          {[
-            { label: 'Inicio',       to: '/' },
-            { label: 'Tienda',       to: '/catalogo' },
-            { label: 'Contacto',     to: '/contacto' },
-          ].map(l => (
-            <Link key={l.to} to={l.to} className="text-sm font-body text-gray-600 hover:text-brand-500 transition-colors">
-              {l.label}
-            </Link>
-          ))}
-        </nav>
-
-        <Link to="/catalogo" className="relative flex items-center gap-2 bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-xl transition-colors font-body font-medium text-sm">
-          <ShoppingCart size={16} />
-          <span className="hidden sm:inline">Tienda</span>
-          {cantidadItems > 0 && (
-            <span className="absolute -top-2 -right-2 bg-gray-900 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-mono">
-              {cantidadItems}
-            </span>
-          )}
-        </Link>
-      </div>
-    </header>
-  )
-}
+import useAuthStore from '../store/authStore'
+import Navbar from '../components/Navbar'
+import CartDrawer from '../components/cart/CartDrawer'
+import AuthModal from '../components/auth/AuthModal'
 
 function Footer() {
   return (
@@ -66,7 +31,16 @@ function Footer() {
 }
 
 export default function ContactoPage() {
-  const { cantidadItems } = useCartStore()
+  const { cantidadItems, vaciar: vaciarCarrito } = useCartStore()
+  const { logout } = useAuthStore()
+  const [cartOpen, setCartOpen] = useState(false)
+  const [loginOpen, setLoginOpen] = useState(false)
+
+  const handleLogout = () => {
+    logout()
+    vaciarCarrito()
+  }
+
   const [form, setForm] = useState({ nombre: '', email: '', asunto: '', mensaje: '' })
   const [enviado, setEnviado] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -118,7 +92,14 @@ export default function ContactoPage() {
 
   return (
     <div className="min-h-screen bg-surface-50">
-      <Navbar cantidadItems={cantidadItems()} />
+      <Navbar 
+        cantidadItems={cantidadItems()} 
+        onCartClick={() => setCartOpen(true)}
+        onLoginClick={() => setLoginOpen(true)}
+        onLogout={handleLogout}
+      />
+      <CartDrawer isOpen={cartOpen} onClose={() => setCartOpen(false)} />
+      <AuthModal isOpen={loginOpen} onClose={() => setLoginOpen(false)} />
 
       {/* Header de página */}
       <div className="bg-white border-b border-surface-200 py-10">

@@ -7,6 +7,7 @@ vi.mock('../services/api', () => ({
   default: {
     post: vi.fn(),
     patch: vi.fn(),
+    get: vi.fn(),
   },
 }));
 
@@ -19,19 +20,22 @@ describe('authStore', () => {
   });
 
   it('debe iniciar sesión correctamente y guardar en localStorage', async () => {
-    const mockResponse = {
+    const mockLoginResponse = {
       data: {
-        access_token: 'fake-token',
-        user: { id: 1, email: 'test@test.com', nombre: 'Test' }
+        access_token: 'fake-token'
       }
     };
-    api.post.mockResolvedValue(mockResponse);
+    const mockUserResponse = {
+      data: { id: 1, email: 'test@test.com', nombre: 'Test' }
+    };
+    api.post.mockResolvedValue(mockLoginResponse);
+    api.get.mockResolvedValue(mockUserResponse);
 
     const success = await useAuthStore.getState().login('test@test.com', 'password');
 
     expect(success).toBe(true);
     expect(useAuthStore.getState().token).toBe('fake-token');
-    expect(useAuthStore.getState().user).toEqual(mockResponse.data.user);
+    expect(useAuthStore.getState().user).toEqual(mockUserResponse.data);
     expect(localStorage.getItem('vp_token')).toBe('fake-token');
   });
 
