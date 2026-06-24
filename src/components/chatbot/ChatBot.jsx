@@ -71,6 +71,17 @@ const ChatBot = () => {
     }
   };
 
+  const formatMessage = (text) => {
+    if (typeof text !== 'string') return text;
+    const parts = text.split(/(\*\*.*?\*\*)/g);
+    return parts.map((part, index) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={index}>{part.slice(2, -2)}</strong>;
+      }
+      return <span key={index}>{part}</span>;
+    });
+  };
+
   return (
     <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end">
       {/* Tooltip / Notificación de saludo */}
@@ -139,7 +150,7 @@ const ChatBot = () => {
                     ? 'bg-white text-gray-800 rounded-tl-none border border-brand-50' 
                     : 'bg-brand-500 text-white rounded-tr-none'
                 }`}>
-                  {msg.text}
+                  {formatMessage(msg.text)}
                 </div>
               </div>
             ))}
